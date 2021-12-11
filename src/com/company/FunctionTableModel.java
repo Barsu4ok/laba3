@@ -2,18 +2,21 @@ package com.company;
 
 import javax.swing.table.AbstractTableModel;
 
-@SuppressWarnings("serial")
-public class FunctionTableModel extends AbstractTableModel {
-    private Double from, to, step, param;       // от, до и шаг
-    public FunctionTableModel(Double from, Double to, Double step, Double param) {
+public class FunctionTableModel extends AbstractTableModel{
+
+    private Double from, to, step, parameter;
+
+    public FunctionTableModel(Double from, Double to, Double step, Double parameter) {
         this.from = from;
         this.to = to;
         this.step = step;
-        this.param = param;
+        this.parameter = parameter;
     }
 
+    public Double getParameter() { return parameter; }
+
     public Double getFrom() {
-        return from;                //возвращает т к у нас все эти переменные private
+        return from;
     }
 
     public Double getTo() {
@@ -24,50 +27,42 @@ public class FunctionTableModel extends AbstractTableModel {
         return step;
     }
 
-    public Double getParam(){
-        return param;
+    @Override
+    public int getRowCount() {
+        return (int)(Math.ceil((to-from)/step))+1;
     }
 
+    @Override
     public int getColumnCount() {
         return 3;
     }
 
-    public int getRowCount() {
-        //Вычислить количество значений аргумента исходя из шага
-        return new Double(Math.ceil((to-from)/step)).intValue()+1;
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        Double x = from + step*rowIndex;
+        Double y = x+parameter+x*(-parameter*0.2)+Math.pow(x,2)*(-parameter);
+        Boolean z = y<0;
+        switch (columnIndex){
+            case 0: return x;
+            case 1: return y;
+            case 2: return z;
+        }
+        return null;
     }
 
-    public Object getValueAt(int row, int col) {
-        //Вычислить значение X (col=0) как НАЧАЛО_ОТРЕЗКА + ШАГ*НОМЕР_СТРОКИ
-        double x = from + step*row;
-        double y = x - param;
-
-        if(col == 0) {
-            return x;
-        }
-        else if(col == 1){
-            return -y;
-        }
-        else{
-            return x<0;
-        }
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if(columnIndex == 2) return Boolean.class;
+        return Double.class;
     }
 
-    public String getColumnName(int col) {
-        switch (col) {
-            case 0: return "Значение х";
+    @Override
+    public String getColumnName(int column) {
+        switch (column){
+            case 0: return "Значение Х";
             case 1: return "Значение многочлена";
-            case 2: return "Две пары";
+            case 2: return "Значение многочлена >0 ?";
         }
         return "";
-    }
-
-    public Class<?> getColumnClass(int col) {
-        //И в 1-ом и во 2-ом столбце находятся значения типа Double
-        if (col != 2)
-            return Double.class;
-        else {
-            return Boolean.class;
-        }
     }
 }
